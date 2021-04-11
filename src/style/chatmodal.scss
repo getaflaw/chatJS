@@ -1,0 +1,115 @@
+.chat-modal {
+  width: 100%;
+  height: 100%;
+
+  &__header {
+    width: 100%;
+    height: 67px;
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+    background-color: $base-dark;
+    justify-content: center;
+  }
+
+  &__dialog {
+    width: 100%;
+    height: calc(100% - 121px);
+    background-color: $bg-color;
+  }
+
+  &__msgform {
+    width: 100%;
+    height: 54px;
+    background-color: $base-dark;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 20px;
+  }
+}
+
+.chat-properies {
+  &__name {
+    color: #ffffff
+  }
+
+  &__members {
+    color: #7f91a4;
+  }
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  color: #fff;
+  padding: 2% 11px;
+
+  &__message {
+    width: 50%;
+    align-self: flex-start;
+    display: flex;
+    align-items: flex-start;
+  }
+}
+
+.textmsg-list {
+  display: flex;
+  flex-direction: column;
+  min-width: 20%;
+  max-width: 100%;
+}
+
+.textmsg-item {
+  min-height: 33px;
+  display: flex;
+  align-items: center;
+  border-radius: 10px;
+  align-self: flex-start;
+  background-color: #182533;
+  margin-bottom: 4px;
+  padding: 4px 5%;
+}
+
+.mymsg {
+  align-self: flex-end;
+  justify-content: flex-end;
+
+  & img {
+    order: 1;
+  }
+
+  & li {
+    align-self: flex-end;
+    background-color: $light-blue;
+  }
+}
+
+.user-photo {
+  min-width: 33px;
+  min-height: 33px;
+  border-radius: 50%;
+  background-color: #ccc;
+  margin: 0 10px;
+}
+
+.message-form {
+  &__text {
+    border: none;
+    outline: none;
+    color: #5b6774;
+    height: 100%;
+    width: 100%;
+    background-color: $base-dark;
+  }
+
+  &__sendbtn {
+    height: 28px;
+    width: 112px;
+    background-color: $light-blue;
+    color: #fff;
+    border: none;
+    outline: none;
+    border-radius: 5px;
+  }
+}

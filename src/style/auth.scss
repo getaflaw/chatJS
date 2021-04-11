@@ -1,0 +1,79 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: $bg-color;
+}
+.modal-window {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+  width: 516px;
+  height: 516px;
+  background-color: $base-dark;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 30px 0;
+  &__content {
+    text-align: center;
+    width: 300px;
+  }
+  &__form {
+    width: 300px;
+  }
+}
+#closeModal {
+  position: absolute;
+  right: 5%;
+  top: 5%;
+}
+.modal-title {
+  color: #fff;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+.modal-description {
+  color: #7f91a4;
+  font-size: 16px;
+}
+.form-auth {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 40%;
+  &__username {
+    width: 100%;
+    height: 40px;
+    outline: none;
+    border: none;
+    border-bottom: 2px solid #465362;
+    background-color: transparent;
+    padding: 0 2%;
+  }
+  &__usernick {
+    width: 100%;
+    height: 40px;
+    outline: none;
+    border: none;
+    border-bottom: 2px solid #465362;
+    background-color: transparent;
+    padding: 0 2%;
+  }
+  &__submit {
+    height: 43px;
+    width: 132px;
+    background-color: $light-blue;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+  }
+}
+.hide {
+  visibility: hidden;
+}

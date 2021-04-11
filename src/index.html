@@ -5,7 +5,56 @@
     <title>Title</title>
 </head>
 <body>
-<button id="btn"></button>
-<script src="main.js"></script>
+<div class="container">
+    <aside class="chat-details">
+        <div class="chat-details__header chat-header">
+            <div class="chat-header__burgermenu burgermenu">
+                <span class="burgermenu__top"></span>
+                <span class="burgermenu__middle"></span>
+                <span class="burgermenu__bottom"></span>
+            </div>
+            <input class="chat-header__findline" placeholder="Найти..."/>
+        </div>
+        <div class="chat-detail__users">
+            <ul class="users-list">
+                <li class="users-list__item user-item">
+                    <img class="user-item__image"/>
+                    <div class="user-item__name">Василий Петрович</div>
+                </li>
+            </ul>
+        </div>
+    </aside>
+    <main class="chat-modal">
+        <div class="chat-modal__header chat-properies">
+            <span class="chat-properies__name">Чат</span>
+            <span class="chat-properies__members">1 участник</span>
+        </div>
+        <div class="chat-modal__dialog">
+            <ul class="dialog">
+
+            </ul>
+        </div>
+        <form class="chat-modal__msgform message-form">
+            <input id="textareaMsg" type="text" class="message-form__text" placeholder="Введите ваше сообщение...">
+            <button class="message-form__sendbtn">Отправить</button>
+        </form>
+    </main>
+    <div class="modal-auth">
+        <div class="modal-overlay">
+            <div class="modal-window">
+                <span id="closeModal">&#10006;</span>
+                <div class="modal-window__content">
+                    <h3 class="modal-title">Авторизация</h3>
+                    <p class="modal-description">Введите пожалуйста своё ФИО и ник для дальшейшей авторизации</p>
+                </div>
+                <form class="modal-window__form form-auth" id="authForm">
+                    <input class="form-auth__username" type="text" placeholder="Введите своё Имя и Фамилию">
+                    <input class="form-auth__usernick" type="text" placeholder="Введите свой никнейм">
+                    <button class="form-auth__submit" type="submit" id="authSubmit">Войти</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>

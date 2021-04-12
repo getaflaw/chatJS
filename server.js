@@ -2,6 +2,7 @@ const WebSocketServer = new require('ws');
 
 const clients = {};
 const membersList = {};
+const dataMembers = {};
 
 const responseForAll = (json) => {
     for (const key in clients) {
@@ -35,14 +36,13 @@ webSocketServer.on('connection', function (ws) {
         if (msgParse.type == "auth") {
             for (const key in clients) {
                 if (clients[key].userName == msgParse.userName && clients[key].userNick == msgParse.userNick) {
-                    clients[key] = ws;
-                    clients[key].userName = msgParse.userName;
-                    clients[key].userNick = msgParse.userNick;
-
-                    await responseMemberList(ws)
+                    id = key
+                    clients[id] = ws;
+                    clients[id].userName = msgParse.userName;
+                    clients[id].userNick = msgParse.userNick;
                     membersList[id] = {};
-                    membersList[key].userName = msgParse.userName;
-                    membersList[key].userNick = msgParse.userNick;
+                    membersList[id].userName = msgParse.userName;
+                    membersList[id].userNick = msgParse.userNick;
 
                     const responseAuth = {
                         type: 'auth',
@@ -50,7 +50,15 @@ webSocketServer.on('connection', function (ws) {
                         userName: msgParse.userName,
                         userNick: msgParse.userNick
                     }
-                    responseForAll(JSON.stringify(responseAuth));
+                    if (dataMembers[id].photoData) {
+                        responseAuth.photoData = dataMembers[id].photoData
+                        membersList[id].photoData = dataMembers[id].photoData
+                    }
+
+                    for (const key in clients) {
+                        responseMemberList(clients[key])
+                    }
+                    clients[id].send(JSON.stringify(responseAuth));
 
                     return
                 }
@@ -59,8 +67,10 @@ webSocketServer.on('connection', function (ws) {
             clients[id] = ws;
             clients[id].userName = msgParse.userName;
             clients[id].userNick = msgParse.userNick;
-
-
+            dataMembers[id]= {
+                userName: msgParse.userName,
+                userNick: msgParse.userNick
+            }
             membersList[id] = {};
             membersList[id].userName = msgParse.userName;
             membersList[id].userNick = msgParse.userNick;
@@ -70,7 +80,6 @@ webSocketServer.on('connection', function (ws) {
                 userName: msgParse.userName,
                 userNick: msgParse.userNick
             }
-            console.log(clients[id].userName)
             for (const key in clients) {
                 responseMemberList(clients[key])
             }
@@ -87,13 +96,30 @@ webSocketServer.on('connection', function (ws) {
                 text: msgParse.text,
                 date: new Date()
             }
+            if (msgParse.photoData) {
+                responseMsg.photoData = msgParse.photoData
+            }
             for (const key in clients) {
                 clients[key].send(JSON.stringify(responseMsg));
             }
         }
-        /*for (const key in clients) {
-            clients[key].send(message);
-        }*/
+        if (msgParse.type == "upload") {
+
+            for (const key in membersList) {
+                if (membersList[key].userName == msgParse.userName && membersList[key].userNick == msgParse.userNick) {
+                    membersList[key].photoData = msgParse.photoData;
+                    dataMembers[key].photoData = msgParse.photoData;
+                }
+            }
+            const updatePhotoMember = {
+                type: 'updateMember',
+                userName: msgParse.userName,
+                userNick: msgParse.userNick,
+                photoData: msgParse.photoData
+            }
+
+            responseForAll(JSON.stringify(updatePhotoMember))
+        }
     });
 
     ws.on('close', function (msg) {
@@ -107,8 +133,6 @@ webSocketServer.on('connection', function (ws) {
             }
 
         }
-
-        console.log(membersList)
         const responseAuth = {
             type: 'connect',
             memberList: membersList

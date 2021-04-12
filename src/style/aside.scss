@@ -3,47 +3,29 @@
   min-width: 261px;
   background-color: $base-dark;
   border-right: 2px solid $bg-color;
-  padding: 11px 15px;
 
-  &__header {
+  &__profile {
     display: flex;
-    justify-content: center;
     align-items: center;
+    height: 69px;
+    border-bottom: 2px solid $bg-color;
+    padding: 5px 20px;
+  }
+}
+.chat-profile {
+  &__photo {
+    width: 47px;
+    height: 47px;
+    border-radius: 50%;
+    background-color: #ccc;
+    margin-right: 10px;
   }
 }
 
-.burgermenu {
-  position: relative;
-  width: 30px;
-  height: 22px;
-  cursor: pointer;
-  & span {
-    position: absolute;
-    left: 0;
-    border-top: 4px solid #6c7883;
-    width: 100%;
-    border-radius: 2px;
-  }
-  &__top{top:0}
-  &__middle{top: 9px}
-  &__bottom{top: 18px}
-}
-
-.chat-header__findline {
-  height: 38px;
-  width: 100%;
-  color: #6d7883;
-  background-color: $light-dark;
-  border: none;
-  border-radius: 4px;
-  outline: none;
-  padding: 4px 5%;
-  margin: 0 10px;
-}
 .users-list {
   display: flex;
   flex-direction: column;
-  margin: 20px auto;
+  padding: 20px;
   &__item {
     color: #fff;
     width: 100%;
@@ -59,4 +41,8 @@
   border-radius: 50%;
   background-color: #ccc;
   margin-right: 10px;
+}
+
+#photoInput {
+  display: none;
 }

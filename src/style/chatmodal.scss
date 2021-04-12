@@ -61,14 +61,15 @@
 }
 
 .textmsg-item {
-  min-height: 33px;
+  max-width: 100%;
+  word-break: break-word;
   display: flex;
   align-items: center;
   border-radius: 10px;
   align-self: flex-start;
   background-color: #182533;
   margin-bottom: 4px;
-  padding: 4px 5%;
+  padding: 10px 15px;
 }
 
 .mymsg {
@@ -86,8 +87,8 @@
 }
 
 .user-photo {
-  min-width: 33px;
-  min-height: 33px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
   background-color: #ccc;
   margin: 0 10px;

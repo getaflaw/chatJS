@@ -2,19 +2,20 @@ module.exports = class ChatModal {
     constructor() {
     }
 
-    createTemplate(text, myMsg) {
+    createTemplate(text, myMsg, imgsrc= 'https://via.placeholder.com/120x120?text=No+Image') {
         myMsg ? myMsg = "mymsg" : myMsg="";
-        return `<li class="dialog__message ${myMsg} ">
-                    <img class="user-photo"/>
+        console.log(imgsrc)
+        return `<li class="dialog__message ${myMsg}">
+                    <img src="${imgsrc}" class="user-photo"/>
                     <ul class="textmsg-list">
                         <li class="textmsg-item">${text}</li>
                     </ul>
                     </li>`
     }
 
-    buildMsg(text, myMsg) {
+    buildMsg(text, myMsg ,imgsrc= 'https://via.placeholder.com/120x120?text=No+Image') {
         const templateElement = document.createElement("template");
-        templateElement.innerHTML = this.createTemplate(text, myMsg);
+        templateElement.innerHTML = this.createTemplate(text, myMsg,imgsrc);
         return templateElement.content;
     }
 

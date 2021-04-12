@@ -7,20 +7,16 @@
 <body>
 <div class="container">
     <aside class="chat-details">
-        <div class="chat-details__header chat-header">
-            <div class="chat-header__burgermenu burgermenu">
-                <span class="burgermenu__top"></span>
-                <span class="burgermenu__middle"></span>
-                <span class="burgermenu__bottom"></span>
-            </div>
-            <input class="chat-header__findline" placeholder="Найти..."/>
+        <div class="chat-details__profile chat-profile">
+            <input type="file" id="photoInput">
+            <label for="photoInput">
+                <img src="https://via.placeholder.com/50x50?text=No+Image" class="chat-profile__photo"/>
+            </label>
+            <div class="chat-profile__user-name"></div>
         </div>
         <div class="chat-detail__users">
             <ul class="users-list">
-                <li class="users-list__item user-item">
-                    <img class="user-item__image"/>
-                    <div class="user-item__name">Василий Петрович</div>
-                </li>
+
             </ul>
         </div>
     </aside>
@@ -39,7 +35,7 @@
             <button class="message-form__sendbtn">Отправить</button>
         </form>
     </main>
-    <div class="modal-auth">
+    <div class="modal-auth hide">
         <div class="modal-overlay">
             <div class="modal-window">
                 <span id="closeModal">&#10006;</span>
@@ -52,6 +48,19 @@
                     <input class="form-auth__usernick" type="text" placeholder="Введите свой никнейм">
                     <button class="form-auth__submit" type="submit" id="authSubmit">Войти</button>
                 </form>
+            </div>
+        </div>
+    </div>
+    <div class="modal-upload">
+        <div class="upload-window">
+            <input type="file">
+            <label>
+                <div class="upload-window__photo-area"></div>
+            </label>
+            <p class="upload-window__description">Область для профильной фотографии</p>
+            <div class="upload-window__btn upload-btn">
+                <button class="upload-btn__cancel">Отмена</button>
+                <button class="upload-btn__upload">Загрузить</button>
             </div>
         </div>
     </div>

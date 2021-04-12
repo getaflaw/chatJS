@@ -2,7 +2,7 @@ import './main.scss'
 import ChatContent from './module/chatModul.js'
 
 const socket = new WebSocket("ws://localhost:8080");
-
+const userProfile = document.querySelector('.chat-profile__user-name')
 const authForm = document.getElementById('authForm')
 const userName = authForm.querySelector('.form-auth__username')
 const userNick = authForm.querySelector('.form-auth__usernick')
@@ -11,10 +11,14 @@ const modalAuth = document.querySelector('.modal-auth')
 const chatTextArea = document.getElementById('textareaMsg')
 const sendMsgChat = document.querySelector('.message-form__sendbtn')
 const membersList = document.querySelector('.users-list')
-const userProfile = {}
+const userProfileData = {}
+const profileImg = document.querySelector('.chat-profile__photo')
+const photoInput = document.getElementById('photoInput');
+const fileReader = new FileReader();
 const dialogBody = document.querySelector('.dialog')
 const messagerChat = new ChatContent()
 let lastMsg;
+
 
 const authentication = () => {
     // Construct a msg object containing the data the server needs to process the message from the chat client.
@@ -33,10 +37,10 @@ const authentication = () => {
     userNick.value = ""
 }
 
-const addMember = (name, nick) => {
+const addMember = (name, nick, dataImg = 'https://via.placeholder.com/120x120?text=No+Image') => {
 
     const addMemberLi = `<li class=\"users-list__item user-item\">\n` +
-        ` <img class=\"user-item__image\"/>\n` +
+        ` <img src="${dataImg}" class=\"user-item__image\" data-userID="${name}${nick}"/>\n` +
         ` <div class=\"user-item__name\">${name} aka ${nick}</div>\n` +
         ` </li>`
     const listMember = document.createElement("template");
@@ -48,20 +52,19 @@ const addMember = (name, nick) => {
 const sendMsg = () => {
     const msgChat = {
         type: "message",
-        userName: userProfile.userName,
-        userNick: userProfile.userNick,
+        userName: userProfileData.userName,
+        userNick: userProfileData.userNick,
         date: new Date(),
         text: chatTextArea.value
     };
+    if (userProfileData.photoData) {
+        msgChat.photoData = userProfileData.photoData
+    }
+
     socket.send(JSON.stringify(msgChat));
     chatTextArea.value = "";
 }
 
-const typeOfMsg = (myMsg, reapeat) => {
-    if (reapeat == true) {
-        messagerChat.addSecondMsg('Dyrak');
-    }
-}
 
 sendBtn.addEventListener('click', (e) => {
     e.preventDefault()
@@ -71,38 +74,77 @@ sendBtn.addEventListener('click', (e) => {
 sendMsgChat.addEventListener('click', (e) => {
     e.preventDefault()
     sendMsg()
-
 })
 
+fileReader.addEventListener('load', function () {
+    profileImg.src = fileReader.result;
+    const uploadPhoto = {
+        type: "upload",
+        userName: userProfileData.userName,
+        userNick: userProfileData.userNick,
+        photoData: fileReader.result
+    };
+    socket.send(JSON.stringify(uploadPhoto));
+});
+
+photoInput.addEventListener('change', function (e) {
+    const file = e.target.files[0];
+
+    if (file) {
+        if (file.size > 300 * 1024) {
+            alert('Слишком большой файл');
+        } else {
+            fileReader.readAsDataURL(file);
+        }
+    }
+});
 
 socket.addEventListener('message', function (event) {
     const responseMsg = JSON.parse(event.data);
     if (responseMsg.type == "connect") {
         membersList.innerHTML = '';
+
         const memberObj = responseMsg.memberList;
         for (const key in memberObj) {
-            addMember(memberObj[key].userName, memberObj[key].userNick)
+
+            addMember(memberObj[key].userName, memberObj[key].userNick, memberObj[key].photoData)
         }
     }
     if (responseMsg.type == "auth") {
-        if (userProfile != {}) {
-            userProfile.userName = responseMsg.userName;
-            userProfile.userNick = responseMsg.userNick;
-            modalAuth.classList.add('hide');
-            //addMember(responseMsg.userName, responseMsg.userNick);
-            return
+        userProfileData.userName = responseMsg.userName;
+        userProfileData.userNick = responseMsg.userNick;
+
+        if (responseMsg.photoData) {
+            profileImg.src = responseMsg.photoData
+            userProfileData.photoData = responseMsg.photoData
         }
-        addMember(responseMsg.userName, responseMsg.userNick);
+        modalAuth.classList.add('hide');
+        userProfile.textContent = userProfileData.userName;
+        return
+
     }
     if (responseMsg.type == "message") {
-        console.log(userProfile.userName)
-        console.log(responseMsg.userName)
         if (!lastMsg || lastMsg != responseMsg.userName) {
-            dialogBody.append(messagerChat.buildMsg(responseMsg.text, userProfile.userName==responseMsg.userName))
+            const myMsg = userProfileData.userName == responseMsg.userName
+            dialogBody.append(messagerChat.buildMsg(responseMsg.text, myMsg, responseMsg.photoData))
             lastMsg = responseMsg.userName
         } else {
             messagerChat.addSecondMsg(responseMsg.text)
         }
+
+    }
+    if (responseMsg.type == "updateMember") {
+        if (responseMsg.userName==userProfileData.userName&&responseMsg.userNick==userProfileData.userNick)
+        {
+            userProfileData.photoData=responseMsg.photoData
+        }
+        const dataUser = membersList.querySelectorAll(`[data-userID]`)
+        dataUser.forEach((elem)=> {
+
+            if (elem.dataset.userid == responseMsg.userName + responseMsg.userNick) {
+                elem.src=responseMsg.photoData
+            }
+        })
 
     }
     // сделать на свичах

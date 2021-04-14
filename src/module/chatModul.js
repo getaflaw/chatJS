@@ -1,30 +1,31 @@
 module.exports = class ChatModal {
     constructor() {
+        this.dialogBody = document.querySelector('.dialog')
     }
 
-    createTemplate(text, myMsg, imgsrc= 'https://via.placeholder.com/120x120?text=No+Image') {
+    createTemplate(text, myMsg, imgsrc= 'https://via.placeholder.com/120x120?text=No+Image',msgTime) {
         myMsg ? myMsg = "mymsg" : myMsg="";
-        console.log(imgsrc)
         return `<li class="dialog__message ${myMsg}">
                     <img src="${imgsrc}" class="user-photo"/>
                     <ul class="textmsg-list">
-                        <li class="textmsg-item">${text}</li>
+                        <li class="textmsg-item">${text}<span>${msgTime}</span></li>
                     </ul>
                     </li>`
     }
 
-    buildMsg(text, myMsg ,imgsrc= 'https://via.placeholder.com/120x120?text=No+Image') {
+    buildMsg(text, myMsg ,imgsrc= 'https://via.placeholder.com/120x120?text=No+Image',msgTime) {
         const templateElement = document.createElement("template");
-        templateElement.innerHTML = this.createTemplate(text, myMsg,imgsrc);
-        return document.body.append(templateElement.content);
+        templateElement.innerHTML = this.createTemplate(text, myMsg,imgsrc,msgTime);
+        return this.dialogBody.append(templateElement.content);
+
     }
 
-    addSecondMsg(text) {
+    addSecondMsg(text, msgTime) {
         const lastMsg = document.querySelectorAll('.textmsg-item')
+        const innerMsg = `${text}<span>${msgTime}</span>`
         const createLiMsg = document.createElement('li')
         createLiMsg.classList.add('textmsg-item')
-        createLiMsg.textContent = text
-        console.log(createLiMsg)
+        createLiMsg.innerHTML = innerMsg
         return lastMsg[lastMsg.length - 1].parentElement.append(createLiMsg)
     }
 }

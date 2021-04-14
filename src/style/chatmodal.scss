@@ -69,7 +69,15 @@
   align-self: flex-start;
   background-color: #182533;
   margin-bottom: 4px;
-  padding: 10px 15px;
+  padding: 10px 15px 20px;
+  position: relative;
+  & span {
+    position: absolute;
+    bottom: 5px;
+    right: 10px;
+    font-size: 12px;
+    color: #aaa;
+  }
 }
 
 .mymsg {

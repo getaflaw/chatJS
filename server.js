@@ -94,7 +94,7 @@ webSocketServer.on('connection', function (ws) {
                 userName: msgParse.userName,
                 userNick: msgParse.userNick,
                 text: msgParse.text,
-                date: new Date()
+                date: `${new Date().getHours()}:${new Date().getMinutes()}`
             }
             if (msgParse.photoData) {
                 responseMsg.photoData = msgParse.photoData

@@ -1,6 +1,5 @@
 module.exports = class LoadAvatarModal {
-    constructor() {
-    }
+    constructor() {    }
 
     templateModal() {
         return '<div class="modal-upload">\n' +
@@ -18,69 +17,104 @@ module.exports = class LoadAvatarModal {
             '    </div>'
     }
 
-    buildUploadModal() {
+    buildUploadModal(socket,name,nick) {
+        this.socket = socket
+        this.userName = name
+        this.userNick = nick
         const templateUploadModal = document.createElement("template");
         templateUploadModal.innerHTML = this.templateModal();
         document.body.append(templateUploadModal.content)
+        this.modal = document.querySelector('.modal-upload')
+        this.listenerBtn()
         this.dropPhotoEvent()
     }
 
     dropPhotoEvent() {
-        let avatarFile;
-        const fileReader = new FileReader()
-        const avatarImg = document.getElementById('avatarPhoto')
-        const dropArea = document.getElementById('dropImageZone')
+        this.fileReader = new FileReader()
+        this.dropArea = document.getElementById('dropImageZone')
 
-        dropArea.addEventListener('dragenter', (event) => {
+        this.dragActive = event => {
             event.preventDefault()
             event.stopPropagation()
-            dropArea.classList.add('has-upload')
-        })
-        dropArea.addEventListener('dragover', (event) => {
+            this.dropArea.classList.add('has-upload')
+        }
+        this.dragDisable = event => {
             event.preventDefault()
             event.stopPropagation()
-            dropArea.classList.add('has-upload')
-        })
-        dropArea.addEventListener('dragleave', (event) => {
-            event.preventDefault()
-            event.stopPropagation()
-            dropArea.classList.remove('has-upload')
-        })
-        dropArea.addEventListener('drop', (event) => {
-            event.preventDefault()
-            event.stopPropagation()
-            dropArea.classList.remove('has-upload')
-            dropArea.style.border = 'none';
-            dropArea.classList.add('already-upload')
-            avatarFile = event.dataTransfer.files[0]
-            fileReader.readAsDataURL(avatarFile);
-        })
-        fileReader.addEventListener('load', function () {
-            dropArea.style.backgroundImage=`url("${fileReader.result}")`;
-           // avatarImg.src = fileReader.result;
-            //const uploadPhoto = {
-            //   type: "upload",
-            //   userName: userProfileData.userName,
-            // userNick: userProfileData.userNick,
-            //  photoData: fileReader.result
-            // };
-            // socket.send(JSON.stringify(uploadPhoto));
-        });
-        dropArea.addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            dropArea.classList.add('already-upload')
-            if (file) {
-                if (file.size > 300 * 1024) {
+            this.dropArea.classList.remove('has-upload')
+        }
+        this.droped = event => {
+            this.dragDisable(event)
+            this.dropArea.style.border = 'none';
+            this.dropArea.classList.add('already-upload')
+            const avatarFile = event.dataTransfer.files[0]
+            if (avatarFile.size > 300 * 1024) {
+                alert('Слишком большой файл');
+            } else {
+                this.fileReader.readAsDataURL(avatarFile);
+            }
+        }
+        this.choosedFile = event => {
+            const avatarFile = event.target.files[0];
+            this.dropArea.classList.add('already-upload')
+            if (avatarFile) {
+                if (avatarFile.size > 300 * 1024) {
                     alert('Слишком большой файл');
                 } else {
-                    fileReader.readAsDataURL(file);
+                    this.fileReader.readAsDataURL(avatarFile);
                 }
             }
-        });
+        }
+        this.fileReaderLoad = () => {
+            this.dropArea.style.backgroundImage = `url("${this.fileReader.result}")`
+            this.dataPhoto = this.fileReader.result
+        }
+        this.dropArea.addEventListener('dragenter', this.dragActive)
+        this.dropArea.addEventListener('dragover', this.dragActive)
+        this.dropArea.addEventListener('dragleave', this.dragDisable)
+        this.dropArea.addEventListener('drop', this.droped)
+        this.dropArea.addEventListener('change', this.choosedFile)
+        this.fileReader.addEventListener('load', this.fileReaderLoad)
+
+        // avatarImg.src = fileReader.result;
+
+
+    }
+
+    listenerBtn() {
+        this.cancelBtn = this.modal.querySelector('.upload-btn__cancel')
+        this.uploadBtn = this.modal.querySelector('.upload-btn__upload')
+        this.avatarImg = document.getElementById('avatarPhoto')
+
+        this.cancelHandler = () => this.destroy()
+        this.uploadHandler = () => {
+            if (this.dataPhoto) {
+                this.avatarImg.src = this.dataPhoto
+                const uploadPhoto = {
+                    type: "upload",
+                    userName: this.userName,
+                    userNick: this.userNick,
+                    photoData: this.dataPhoto
+                };
+                this.socket.send(JSON.stringify(uploadPhoto));
+                this.destroy()
+            } else {
+                console.log(this.userName)
+                alert('Вы не выбрали фотографию')
+            }
+        }
+
+        this.cancelBtn.addEventListener('click', this.cancelHandler, {once: true})
+        this.uploadBtn.addEventListener('click', this.uploadHandler)
     }
 
     destroy() {
-        const modal = document.querySelector('.modal-upload')
-        document.body.removeChild(modal)
+        this.uploadBtn.removeEventListener('click', this.uploadHandler)
+        this.dropArea.removeEventListener('dragenter', this.dragActive)
+        this.dropArea.removeEventListener('dragover', this.dragActive)
+        this.dropArea.removeEventListener('dragleave', this.dragDisable)
+        this.dropArea.removeEventListener('drop', this.droped)
+        this.dropArea.removeEventListener('change', this.choosedFile)
+        document.body.removeChild(this.modal)
     }
 }

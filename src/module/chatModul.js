@@ -16,7 +16,7 @@ module.exports = class ChatModal {
     buildMsg(text, myMsg ,imgsrc= 'https://via.placeholder.com/120x120?text=No+Image') {
         const templateElement = document.createElement("template");
         templateElement.innerHTML = this.createTemplate(text, myMsg,imgsrc);
-        return templateElement.content;
+        return document.body.append(templateElement.content);
     }
 
     addSecondMsg(text) {

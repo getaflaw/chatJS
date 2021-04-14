@@ -1,5 +1,6 @@
 import './main.scss'
 import ChatContent from './module/chatModul.js'
+import UploadModalClass from './module/uploadAvatar.js'
 
 const socket = new WebSocket("ws://localhost:8080");
 const userProfile = document.querySelector('.chat-profile__user-name')
@@ -13,12 +14,18 @@ const sendMsgChat = document.querySelector('.message-form__sendbtn')
 const membersList = document.querySelector('.users-list')
 const userProfileData = {}
 const profileImg = document.querySelector('.chat-profile__photo')
-const photoInput = document.getElementById('photoInput');
-const fileReader = new FileReader();
+const photoInput = document.getElementById('photoInput')
+const fileReader = new FileReader()
 const dialogBody = document.querySelector('.dialog')
 const messagerChat = new ChatContent()
+const uploadModal = new UploadModalClass()
 let lastMsg;
 
+document.body.addEventListener('drop', e => {
+    e.preventDefault()
+    e.stopPropagation()
+    console.log('drop')
+})
 
 const authentication = () => {
     // Construct a msg object containing the data the server needs to process the message from the chat client.
@@ -76,28 +83,14 @@ sendMsgChat.addEventListener('click', (e) => {
     sendMsg()
 })
 
-fileReader.addEventListener('load', function () {
-    profileImg.src = fileReader.result;
-    const uploadPhoto = {
-        type: "upload",
-        userName: userProfileData.userName,
-        userNick: userProfileData.userNick,
-        photoData: fileReader.result
-    };
-    socket.send(JSON.stringify(uploadPhoto));
-});
 
-photoInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
 
-    if (file) {
-        if (file.size > 300 * 1024) {
-            alert('Слишком большой файл');
-        } else {
-            fileReader.readAsDataURL(file);
-        }
-    }
-});
+/*
+
+*/
+profileImg.addEventListener('click', e => {
+    uploadModal.buildUploadModal()
+})
 
 socket.addEventListener('message', function (event) {
     const responseMsg = JSON.parse(event.data);
@@ -134,15 +127,14 @@ socket.addEventListener('message', function (event) {
 
     }
     if (responseMsg.type == "updateMember") {
-        if (responseMsg.userName==userProfileData.userName&&responseMsg.userNick==userProfileData.userNick)
-        {
-            userProfileData.photoData=responseMsg.photoData
+        if (responseMsg.userName == userProfileData.userName && responseMsg.userNick == userProfileData.userNick) {
+            userProfileData.photoData = responseMsg.photoData
         }
         const dataUser = membersList.querySelectorAll(`[data-userID]`)
-        dataUser.forEach((elem)=> {
+        dataUser.forEach((elem) => {
 
             if (elem.dataset.userid == responseMsg.userName + responseMsg.userNick) {
-                elem.src=responseMsg.photoData
+                elem.src = responseMsg.photoData
             }
         })
 

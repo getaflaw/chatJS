@@ -1,78 +1,28 @@
 import './main.scss'
-import ChatContent from './module/chatModul.js'
-import UploadModalClass from './module/uploadAvatar.js'
+import ChatContent from './module/chatModul'
+import UploadModalClass from './module/uploadAvatar'
+import AuthFormModal from './module/auth'
+import ChatMembers from './module/chatMembers'
+
 
 const socket = new WebSocket("ws://localhost:8080");
 const userProfile = document.querySelector('.chat-profile__user-name')
-const authForm = document.getElementById('authForm')
-const userName = authForm.querySelector('.form-auth__username')
-const userNick = authForm.querySelector('.form-auth__usernick')
-const sendBtn = authForm.querySelector('#authSubmit')
-const modalAuth = document.querySelector('.modal-auth')
-const chatTextArea = document.getElementById('textareaMsg')
 const sendMsgChat = document.querySelector('.message-form__sendbtn')
-const membersList = document.querySelector('.users-list')
 const userProfileData = {}
 const profileImg = document.querySelector('.chat-profile__photo')
-const messagerChat = new ChatContent()
+const messagerChat = new ChatContent(socket,userProfileData)
 const uploadModal = new UploadModalClass()
+const modalFormAuth = new AuthFormModal(socket)
+const chatList = new ChatMembers(socket)
 let lastMsg;
 
-
-const authentication = () => {
-    // Construct a msg object containing the data the server needs to process the message from the chat client.
-    const msgAuth = {
-        type: "auth",
-        userName: userName.value,
-        userNick: userNick.value,
-        date: new Date()
-    };
-
-    // Send the msg object as a JSON-formatted string.
-    socket.send(JSON.stringify(msgAuth));
-
-    // Blank the text input element, ready to receive the next line of text from the user.
-    userName.value = ""
-    userNick.value = ""
-}
-
-const addMember = (name, nick, dataImg = 'https://via.placeholder.com/120x120?text=No+Image') => {
-
-    const addMemberLi = `<li class=\"users-list__item user-item\">\n` +
-        ` <img src="${dataImg}" class=\"user-item__image\" data-userID="${name}${nick}"/>\n` +
-        ` <div class=\"user-item__name\">${name} aka ${nick}</div>\n` +
-        ` </li>`
-    const listMember = document.createElement("template");
-    listMember.innerHTML = addMemberLi
-    membersList.append(listMember.content)
-}
-
-
-const sendMsg = () => {
-    const msgChat = {
-        type: "message",
-        userName: userProfileData.userName,
-        userNick: userProfileData.userNick,
-        date: new Date(),
-        text: chatTextArea.value
-    };
-    if (userProfileData.photoData) {
-        msgChat.photoData = userProfileData.photoData
-    }
-
-    socket.send(JSON.stringify(msgChat));
-    chatTextArea.value = "";
-}
-
-
-sendBtn.addEventListener('click', (e) => {
-    e.preventDefault()
-    authentication()
+document.addEventListener('DOMContentLoaded', ()=> {
+    modalFormAuth.buildAuthModel()
 })
 
 sendMsgChat.addEventListener('click', (e) => {
     e.preventDefault()
-    sendMsg()
+    messagerChat.sendMsg()
 })
 
 
@@ -85,16 +35,11 @@ socket.addEventListener('message', function (event) {
     const responseMsg = JSON.parse(event.data);
     switch (responseMsg.type) {
         case 'connect':
-            membersList.innerHTML = '';
-
-            const memberObj = responseMsg.memberList;
-            for (const key in memberObj) {
-
-                addMember(memberObj[key].userName, memberObj[key].userNick, memberObj[key].photoData)
-            }
+            chatList.addMember(responseMsg)
             break
 
         case 'auth':
+            console.log(responseMsg)
             userProfileData.userName = responseMsg.userName;
             userProfileData.userNick = responseMsg.userNick;
 
@@ -102,10 +47,10 @@ socket.addEventListener('message', function (event) {
                 profileImg.src = responseMsg.photoData
                 userProfileData.photoData = responseMsg.photoData
             }
-            modalAuth.classList.add('hide');
+            chatList.getAllMembers(responseMsg.membersList)
+            modalFormAuth.destroy()
             userProfile.textContent = userProfileData.userName;
             break
-
 
         case 'message':
             if (!lastMsg || lastMsg !== responseMsg.userName) {
@@ -118,18 +63,11 @@ socket.addEventListener('message', function (event) {
             break
 
         case 'updateMember':
-            if (responseMsg.userName === userProfileData.userName && responseMsg.userNick === userProfileData.userNick) {
-                userProfileData.photoData = responseMsg.photoData
-            }
-            const dataUser = membersList.querySelectorAll(`[data-userID]`)
-            dataUser.forEach((elem) => {
-
-                if (elem.dataset.userid === responseMsg.userName + responseMsg.userNick) {
-                    elem.src = responseMsg.photoData
-                }
-            })
+            chatList.updateAvatar(responseMsg)
             break
-
+        case 'disconnect':
+            console.log(responseMsg)
+            chatList.removeMember(responseMsg)
     }
 
 })

@@ -1,10 +1,31 @@
 module.exports = class ChatModal {
-    constructor() {
+    constructor(socket,userProfileData) {
+        this.socket = socket
         this.dialogBody = document.querySelector('.dialog')
+        this.chatTextArea = document.getElementById('textareaMsg')
+        this.userProfileData = userProfileData
     }
 
-    createTemplate(text, myMsg, imgsrc= 'https://via.placeholder.com/120x120?text=No+Image',msgTime) {
-        myMsg ? myMsg = "mymsg" : myMsg="";
+    sendMsg() {
+
+        const msgChat = {
+            type: "message",
+            userName: this.userProfileData.userName,
+            userNick: this.userProfileData.userNick,
+            date: new Date(),
+            text: this.chatTextArea.value
+        };
+        if (this.userProfileData.photoData) {
+            msgChat.photoData = this.userProfileData.photoData
+        }
+
+        this.socket.send(JSON.stringify(msgChat));
+        this.chatTextArea.value = "";
+
+    }
+
+    createTemplate(text, myMsg, imgsrc = 'https://via.placeholder.com/120x120?text=No+Image', msgTime) {
+        myMsg ? myMsg = "mymsg" : myMsg = "";
         return `<li class="dialog__message ${myMsg}">
                     <img src="${imgsrc}" class="user-photo"/>
                     <ul class="textmsg-list">
@@ -13,9 +34,9 @@ module.exports = class ChatModal {
                     </li>`
     }
 
-    buildMsg(text, myMsg ,imgsrc= 'https://via.placeholder.com/120x120?text=No+Image',msgTime) {
+    buildMsg(text, myMsg, imgsrc = 'https://via.placeholder.com/120x120?text=No+Image', msgTime) {
         const templateElement = document.createElement("template");
-        templateElement.innerHTML = this.createTemplate(text, myMsg,imgsrc,msgTime);
+        templateElement.innerHTML = this.createTemplate(text, myMsg, imgsrc, msgTime);
         return this.dialogBody.append(templateElement.content);
 
     }

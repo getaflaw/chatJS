@@ -17,10 +17,13 @@ const responseOtherUsers = (json, id) => {
     }
 }
 
-const responseMemberList = (ws) => {
+const responseMemberList = (ws,msgParse) => {
     const responseMember = {
         type: 'connect',
-        memberList: membersList
+        userName: msgParse.userName,
+        userNick: msgParse.userNick,
+        photoData: msgParse.photoData
+
     }
     ws.send(JSON.stringify(responseMember));
 }
@@ -40,29 +43,31 @@ webSocketServer.on('connection', function (ws) {
                     clients[id] = ws;
                     clients[id].userName = msgParse.userName;
                     clients[id].userNick = msgParse.userNick;
-                    membersList[id] = {};
-                    membersList[id].userName = msgParse.userName;
-                    membersList[id].userNick = msgParse.userNick;
 
                     const responseAuth = {
                         type: 'auth',
                         isReLogin: true,
                         userName: msgParse.userName,
-                        userNick: msgParse.userNick
+                        userNick: msgParse.userNick,
+                        membersList: membersList
                     }
+                    clients[id].send(JSON.stringify(responseAuth));
+                    membersList[id] = {};
+                    membersList[id].userName = msgParse.userName;
+                    membersList[id].userNick = msgParse.userNick;
+
                     if (dataMembers[id].photoData) {
                         responseAuth.photoData = dataMembers[id].photoData
                         membersList[id].photoData = dataMembers[id].photoData
                     }
-
                     for (const key in clients) {
-                        responseMemberList(clients[key])
+                        responseMemberList(clients[key],msgParse)
                     }
-                    clients[id].send(JSON.stringify(responseAuth));
 
                     return
                 }
             }
+
             id = Date.now();
             clients[id] = ws;
             clients[id].userName = msgParse.userName;
@@ -71,20 +76,21 @@ webSocketServer.on('connection', function (ws) {
                 userName: msgParse.userName,
                 userNick: msgParse.userNick
             }
-            membersList[id] = {};
-            membersList[id].userName = msgParse.userName;
-            membersList[id].userNick = msgParse.userNick;
             const responseMsg = {
                 type: 'auth',
                 isReLogin: false,
                 userName: msgParse.userName,
-                userNick: msgParse.userNick
+                userNick: msgParse.userNick,
+                membersList: membersList
             }
-            for (const key in clients) {
-                responseMemberList(clients[key])
-            }
-
             clients[id].send(JSON.stringify(responseMsg));
+
+            membersList[id] = {};
+            membersList[id].userName = msgParse.userName;
+            membersList[id].userNick = msgParse.userNick;
+            for (const key in clients) {
+                responseMemberList(clients[key],msgParse)
+            }
 
             return id
         }
@@ -126,6 +132,12 @@ webSocketServer.on('connection', function (ws) {
         for (const key in membersList) {
             try {
                 if (membersList[key].userName == clients[id].userName && membersList[key].userNick == clients[id].userNick) {
+                    const responseAuth = {
+                        type: 'disconnect',
+                        userName: membersList[key].userName,
+                        userNick: membersList[key].userNick
+                    }
+                    responseForAll(JSON.stringify(responseAuth));
                     delete membersList[key]
                 }
             } catch (e) {
@@ -133,11 +145,8 @@ webSocketServer.on('connection', function (ws) {
             }
 
         }
-        const responseAuth = {
-            type: 'connect',
-            memberList: membersList
-        }
-        responseForAll(JSON.stringify(responseAuth));
+
+
     });
 });
 console.log("Сервер запущен на порту 8080");

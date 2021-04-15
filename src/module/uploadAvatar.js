@@ -17,10 +17,10 @@ module.exports = class LoadAvatarModal {
             '    </div>'
     }
 
-    buildUploadModal(socket,name,nick) {
+    buildUploadModal(socket,dataProfile) {
         this.socket = socket
-        this.userName = name
-        this.userNick = nick
+        this.userName = dataProfile.userName
+        this.userNick = dataProfile.userNick
         const templateUploadModal = document.createElement("template");
         templateUploadModal.innerHTML = this.templateModal();
         document.body.append(templateUploadModal.content)
@@ -99,7 +99,6 @@ module.exports = class LoadAvatarModal {
                 this.socket.send(JSON.stringify(uploadPhoto));
                 this.destroy()
             } else {
-                console.log(this.userName)
                 alert('Вы не выбрали фотографию')
             }
         }

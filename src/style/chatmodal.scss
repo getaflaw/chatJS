@@ -15,7 +15,7 @@
   &__dialog {
     width: 100%;
     height: calc(100% - 121px);
-    background-color: $bg-color;
+    background: linear-gradient(45deg,#0c1419,#0e1621);
   }
 
   &__msgform {

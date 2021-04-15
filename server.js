@@ -9,20 +9,15 @@ const responseForAll = (json) => {
         clients[key].send(json);
     }
 }
-const responseOtherUsers = (json, id) => {
-    for (const key in clients) {
-        if (clients[key] != clients[id]) {
-            clients[key].send(json);
-        }
-    }
-}
 
-const responseMemberList = (ws,msgParse) => {
+
+const responseMemberList = (ws,msgParse,photo) => {
     const responseMember = {
         type: 'connect',
         userName: msgParse.userName,
         userNick: msgParse.userNick,
-        photoData: msgParse.photoData
+        membersList: membersList,
+        photoData: photo
 
     }
     ws.send(JSON.stringify(responseMember));
@@ -51,17 +46,19 @@ webSocketServer.on('connection', function (ws) {
                         userNick: msgParse.userNick,
                         membersList: membersList
                     }
-                    clients[id].send(JSON.stringify(responseAuth));
-                    membersList[id] = {};
-                    membersList[id].userName = msgParse.userName;
-                    membersList[id].userNick = msgParse.userNick;
 
                     if (dataMembers[id].photoData) {
                         responseAuth.photoData = dataMembers[id].photoData
-                        membersList[id].photoData = dataMembers[id].photoData
                     }
+                    clients[id].send(JSON.stringify(responseAuth))
+
+                    membersList[id] = {};
+                    membersList[id].userName = msgParse.userName;
+                    membersList[id].userNick = msgParse.userNick;
+                    membersList[id].photoData = dataMembers[id].photoData
+
                     for (const key in clients) {
-                        responseMemberList(clients[key],msgParse)
+                        responseMemberList(clients[key],msgParse,dataMembers[id].photoData)
                     }
 
                     return

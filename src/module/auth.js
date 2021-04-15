@@ -1,7 +1,6 @@
 const authForm = document.getElementById('authForm')
 
 
-
 module.exports = class authForm {
     constructor(socket) {
         this.socket = socket
@@ -23,10 +22,42 @@ module.exports = class authForm {
                 </div>`
     }
 
+    validateAuth(name, nick) {
+        const validateError = (input, textError, defaultText) => {
+            input.placeholder = textError
+            input.classList.add('validate-error')
+            setTimeout(() => {
+                input.placeholder = defaultText
+                input.classList.remove('validate-error')
+            }, 1500)
+        }
+        if (!name.value?.trim() || !nick.value?.trim()) {
+            if (!name.value?.trim()) {
+                validateError(name, 'Заполните поле Имени', 'Введите своё Имя и Фамилию')
+            }
+            if (!nick.value?.trim()) {
+                validateError(nick, 'Заполните поле Никнейма', 'Введите свой никнейм')
+
+            }
+            return false
+        }
+        if (name.value.trim().length > 16 || name.value.trim().length < 4 || nick.value.trim().length > 10 || nick.value.trim().length < 4) {
+            if (name.value.trim().length > 16 || name.value.trim().length < 4) {
+                validateError(name, 'Введите от 4 до 16 символов', 'Введите своё Имя и Фамилию')
+            }
+            if (nick.value.trim().length > 10 || nick.value.trim().length < 4) {
+                validateError(nick, 'Введите от 4 до 10 символов', 'Введите свой никнейм')
+            }
+            return false
+        }
+
+        return true
+    }
+
     buildAuthModel() {
         this.modalAuth = document.createElement('div')
         this.modalAuth.classList.add('modal-auth')
-        this.modalAuth.innerHTML= this.formTemplate()
+        this.modalAuth.innerHTML = this.formTemplate()
         document.body.append(this.modalAuth)
 
         this.eventer()
@@ -34,21 +65,24 @@ module.exports = class authForm {
 
     eventer() {
         this.sendBtn = this.modalAuth.querySelector('#authSubmit')
-        const userName = this.modalAuth.querySelector('.form-auth__username')
-        const userNick = this.modalAuth.querySelector('.form-auth__usernick')
+        this.userName = this.modalAuth.querySelector('.form-auth__username')
+        this.userNick = this.modalAuth.querySelector('.form-auth__usernick')
         this.authHandler = e => {
             e.preventDefault()
-            const msgAuth = {
-                type: "auth",
-                userName: userName.value,
-                userNick: userNick.value,
-                date: new Date()
-            };
-            this.socket.send(JSON.stringify(msgAuth));
+            if (this.validateAuth(this.userName, this.userNick)) {
+                const msgAuth = {
+                    type: "auth",
+                    userName: this.userName.value,
+                    userNick: this.userNick.value,
+                    date: new Date()
+                };
+                this.socket.send(JSON.stringify(msgAuth));
+            }
         }
 
         this.sendBtn.addEventListener('click', this.authHandler)
     }
+
     destroy() {
         this.sendBtn.removeEventListener('click', this.authHandler)
         document.body.removeChild(this.modalAuth)

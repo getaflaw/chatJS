@@ -20,6 +20,10 @@
     background-color: #ccc;
     margin-right: 10px;
   }
+  &__user-name {
+    color: #fff;
+    font-size: 20px;
+  }
 }
 
 .users-list {
@@ -31,6 +35,7 @@
     width: 100%;
     display: flex;
     align-items: center;
+    margin-bottom: 5px;
     justify-content: flex-start;
   }
 }

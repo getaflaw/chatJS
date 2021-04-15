@@ -4,9 +4,10 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: $bg-color;
+  background: linear-gradient(45deg,#0c1419,#0e1621);
 }
 .modal-window {
+  opacity: 0.95;
   position: absolute;
   top: 50%;
   left: 50%;
@@ -14,6 +15,7 @@
   width: 516px;
   height: 516px;
   background-color: $base-dark;
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
   justify-content: space-evenly;
@@ -27,11 +29,7 @@
     width: 300px;
   }
 }
-#closeModal {
-  position: absolute;
-  right: 5%;
-  top: 5%;
-}
+
 .modal-title {
   color: #fff;
   margin-bottom: 20px;
@@ -55,6 +53,7 @@
     border-bottom: 2px solid #465362;
     background-color: transparent;
     padding: 0 2%;
+    transition: 2s;
   }
   &__usernick {
     width: 100%;
@@ -64,6 +63,7 @@
     border-bottom: 2px solid #465362;
     background-color: transparent;
     padding: 0 2%;
+    transition: 2s;
   }
   &__submit {
     height: 43px;
@@ -76,4 +76,12 @@
 }
 .hide {
   display: none;
+}
+
+.validate-error {
+  border-color: red;
+  &::placeholder {
+    transition: 2s;
+    color: red;
+  }
 }

@@ -27,7 +27,7 @@ sendMsgChat.addEventListener('click', (e) => {
 
 
 profileImg.addEventListener('click', e => {
-    uploadModal.buildUploadModal(socket, userProfileData.userName, userProfileData.userNick)
+    uploadModal.buildUploadModal(socket, userProfileData)
 })
 
 
@@ -36,10 +36,10 @@ socket.addEventListener('message', function (event) {
     switch (responseMsg.type) {
         case 'connect':
             chatList.addMember(responseMsg)
+            chatList.counterMember()
             break
 
         case 'auth':
-            console.log(responseMsg)
             userProfileData.userName = responseMsg.userName;
             userProfileData.userNick = responseMsg.userNick;
 
@@ -47,9 +47,10 @@ socket.addEventListener('message', function (event) {
                 profileImg.src = responseMsg.photoData
                 userProfileData.photoData = responseMsg.photoData
             }
-            chatList.getAllMembers(responseMsg.membersList)
+            chatList.getAllMembers(responseMsg)
             modalFormAuth.destroy()
-            userProfile.textContent = userProfileData.userName;
+            userProfile.textContent = userProfileData.userName
+            chatList.counterMember()
             break
 
         case 'message':
@@ -64,10 +65,11 @@ socket.addEventListener('message', function (event) {
 
         case 'updateMember':
             chatList.updateAvatar(responseMsg)
+
             break
         case 'disconnect':
-            console.log(responseMsg)
             chatList.removeMember(responseMsg)
+            chatList.counterMember()
     }
 
 })
